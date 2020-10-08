@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 
 
-url= 'https://www.dotarragona.cat/celler.php?id=25'
+url= "https://www.infovinos.es/bodegas"
 
 extractor = URLExtract()
 response=requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
