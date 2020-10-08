@@ -24,6 +24,8 @@ class PhoneNumberExtractor:
         self.pattern_1_a = re.compile(r'\d+(?: \d+){2,}')
         self.pattern_1_b = re.compile(r'\(\d+\)(?: \d+){2,}')
         self.pattern_2_a = re.compile(r'\d\d\d\d\d\d\d\d\d')
+        self.pattern_2_b = re.compile(r'\d\d\d\d\d\d\d\d\d\d\d')
+        self.pattern_3_a = re.compile(r'www.\D.{2,}')
         self.clean_phonenum_pattern = re.compile('[^0-9\+()]')
 
     def _remove_attrs(self, soup):
@@ -173,7 +175,6 @@ class PhoneNumberExtractor:
         """
         cleaned_html = self._clean_html(html_str)
 
-        matches = self._find_matches(cleaned_html, [
-                                     self.pattern_0_a, self.pattern_0_b, self.pattern_1_a, self.pattern_1_b, self.pattern_2_a])
+        matches = self._find_matches(cleaned_html, [self.pattern_0_a, self.pattern_0_b, self.pattern_1_a, self.pattern_1_b, self.pattern_2_a, self.pattern_2_b])
         matches = self._clean_phone_numbers(matches)
         return matches

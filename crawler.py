@@ -10,11 +10,11 @@ for url in persistence.readURL():
     print(i)
     response=requests.get(url)
     soup=BeautifulSoup(response.text,'html.parser')
-    soup=str(soup)
+    soup = str(soup)
     results = [extract(soup)]
     extractor = PhoneNumberExtractor()
     matches = extractor.extract_phone_numbers(soup)
     phones = ', '.join(matches)
     results.append(phones)
     print(results)
-    persistence.writeResults(url,results)
+    persistence.writeResults(url,results,i)
