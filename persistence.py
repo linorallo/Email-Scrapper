@@ -31,8 +31,8 @@ def read_cities():
     return urls
 
 def save_results(results):
-    f = open('results/'+str(datetime.now())+'.txt', "w+")
-    f.write('----------------------'+'\n')
+    f = open(''+str(datetime.now().timestamp())+'.txt', "w+")
+    f.write('\n')
     for i in results:
         f.write(str(i)+'\n')
     f.close()
