@@ -9,7 +9,7 @@ def readURL():
 
 
 def writeResults(url, results):
-    f = open(str(datetime.now())+'.txt', "w+")
+    f = open('results/businesses/website/'str(datetime.now())+'.txt', "w+")
     f.write(url+'\n')
     for i in results:
         f.write(str(i)+'\n')

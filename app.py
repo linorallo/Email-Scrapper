@@ -1,8 +1,20 @@
 import persistence
 import requests, json
 import credentials
+import phonenumberextractor
 # places_query='https://maps.googleapis.com/maps/api/place/findplacefromtext/json?key='+credentials.get_google_key()+'&input='
 
+def explore_website(url):
+    response=requests.get(url)
+    soup=BeautifulSoup(response.text,'html.parser')
+    soup=str(soup)
+    results = [extract(soup)]
+    extractor = PhoneNumberExtractor()
+    matches = extractor.extract_phone_numbers(soup)
+    phones = ', '.join(matches)
+    results.append(phones)
+    print(results)
+    persistence.writeResults(url,results)
 
 def get_businesses(business, locations):
     query = 'https://dev.virtualearth.net/REST/v1/LocalSearch/?query=' + \
