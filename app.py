@@ -4,17 +4,23 @@ import credentials
 # places_query='https://maps.googleapis.com/maps/api/place/findplacefromtext/json?key='+credentials.get_google_key()+'&input='
 
 
-def get_locations(business, locations):
+def get_businesses(business, locations):
     query = 'https://dev.virtualearth.net/REST/v1/LocalSearch/?query=' + \
         business+'&maxResults=25'
-    try:
-        obtained_places = []
-        for location in locations:
-            obtained_places.append(requests.get(
-                places_query+'&userLocation='+coordinates+'&key='+credentials.get_bing_key()))
-        return obtained_places
-    except expression as identifier:
-        pass
+    obtained_places = []
+    for location in locations:
+        for coordinates in location['coordinates']:
+            print(coordinates)
+            while True:
+                try:
+                    results = requests.get(query+'&userLocation='+str(coordinates[0])+','+str(coordinates[1])+'&key='+credentials.get_bing_key()).json()['resourceSets'][0]['resources']
+                    for i in results:
+                        obtained_places.append(i)
+                except Exception:
+                    continue
+                break
+    print('---')
+    return obtained_places
 
 
 def get_coordinates(city):
@@ -26,25 +32,31 @@ def get_coordinates(city):
     #for coordinates in requests.get(query):
         #result = json.loads(coordinates)
     result = requests.get(query).json()
-    print(result['resourceSets'][0]['resources'])
+    #print(result['resourceSets'][0]['resources'])
     for i in result['resourceSets'][0]['resources']:
         obtained_resources.append(i)
-    persistence.save_results(obtained_resources)
+    persistence.save_coordinates(obtained_resources)
     obtained_coordinates=[]
-    for i in obtained_coordinates:
-        coordinates = dict(name = i['name'], coordinates = i['point']['coordinates'])
-        print(coordinates)
-        obtained_coordinates.append(coordinates)
+    offset = 0.02
+    for i in obtained_resources:
+        original_coordinates = i['point']['coordinates']
+        quadrant_1 = [original_coordinates[0] + offset, original_coordinates[1] - offset]
+        quadrant_2 = [original_coordinates[0] - offset, original_coordinates[1] + offset]
+        quadrant_3 = [original_coordinates[0] - offset, original_coordinates[1] - offset]
+        quadrant_4 = [original_coordinates[0] + offset, original_coordinates[1] + offset]
+        coordinates  = [original_coordinates,quadrant_1,quadrant_2,quadrant_3,quadrant_4]
+        all_coordinates = dict(name = i['name'], coordinates = coordinates)
+        obtained_coordinates.append(all_coordinates)
     return obtained_coordinates
-
 
 def get_cities():
     cities = persistence.read_cities()
     return cities
 
-
-def get_businesses(business):
+def get_data(business):
     cities = get_cities()
     locations = get_coordinates(cities)
-    businesses_data = get_locations(business, locations)
+    businesses_data = get_businesses(business, locations)
     persistence.save_results(businesses_data)
+
+get_data('restaurants')

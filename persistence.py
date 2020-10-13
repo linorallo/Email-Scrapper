@@ -1,5 +1,4 @@
 from datetime import datetime
-import boto3
 import credentials
 
 
@@ -16,22 +15,19 @@ def writeResults(url, results):
         f.write(str(i)+'\n')
     f.close()
 
-
-def defineBucket():
-    s3 = boto3.resource(
-        service_name='s3',
-        region_name='us-east-2',
-        aws_access_key_id = credentials.get_s3_key(),
-        aws_secret_access_key='mysecretkey'
-    )
-
 def read_cities():
     urls = open('cities_list.csv', 'r').read()
     urls = str(urls).split('\n')
     return urls
 
 def save_results(results):
-    f = open('results/'+str(datetime.now())+'.txt', "w+")
+    f = open('results/businesses/'+str(datetime.now())+'.txt', "w+")
+    for i in results:
+        f.write(str(i)+'\n')
+    f.close()
+
+def save_coordinates(results):
+    f = open('results/coordinates/'+str(datetime.now())+'.txt', "w+")
     f.write('----------------------'+'\n')
     for i in results:
         f.write(str(i)+'\n')
