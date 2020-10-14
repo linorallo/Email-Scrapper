@@ -24,6 +24,7 @@ class PhoneNumberExtractor:
         self.pattern_1_a = re.compile(r'\d+(?: \d+){2,}')
         self.pattern_1_b = re.compile(r'\(\d+\)(?: \d+){2,}')
         self.pattern_2_a = re.compile(r'\d\d\d\d\d\d\d\d\d')
+        self.pattern_3_a = re.compile(r'\S+@\S+')
         self.clean_phonenum_pattern = re.compile('[^0-9\+()]')
 
     def _remove_attrs(self, soup):
