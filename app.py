@@ -11,18 +11,22 @@ def extract_data_from_website(url):
     i= 0 
     while True:
         try:
-            print('Attempting extraction to:')
-            print(url)
-            try:
-                with timeout(10, Exception = RuntimeError):
+            if '.com' in str(url):
+                print('Attempting extraction to:')
+                print(url)
+                try:
                     response=requests.get(url)
                     break
-            except Exception as err:
-                print(err)
-                err
+                except Exception as err:
+                    print(err)
+                    err
+            else:
+                i=10
+                Exception
         except Exception:
             i+=1
-            if i == 5:
+            print(i)
+            if i >= 5:
                 print('5th attempt skipping')
                 response = 'bad'
                 break
@@ -44,9 +48,8 @@ def explore_website(url):
     while True:
         try:
             try:
-                with timeout(10, Exception = RuntimeError):
-                    response=requests.get(url)
-                    break
+                response=requests.get(url)
+                break
             except Exception as err:
                 print(err)
                 err
