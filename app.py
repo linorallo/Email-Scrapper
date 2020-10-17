@@ -18,10 +18,11 @@ def extract_data_from_website(url):
                     response=requests.get(url)
                     break
             except Exception as err:
+                print(err)
                 err
         except Exception:
             i+=1
-            if i == 2:
+            if i == 5:
                 print('5th attempt skipping')
                 response = 'bad'
                 break
@@ -47,8 +48,10 @@ def explore_website(url):
                     response=requests.get(url)
                     break
             except Exception as err:
+                print(err)
                 err
-        except Exception:
+        except Exception as err:
+            print(err)
             continue
     extract_data_from_website(url)
     soup=BeautifulSoup(response.text,'html.parser')
