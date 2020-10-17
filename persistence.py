@@ -18,10 +18,10 @@ def purge_duplicates(all_elements, type):
         return
         
 def purge_links():
-    purge_duplicates(readURL('results/businesses/links/'))
+    purge_duplicates(bulk_read('links'), 'links')
 
 def purge_contact_data():
-    purge_duplicates(read('contact_data'))
+    purge_duplicates(bulk_read('contact_data'), 'contact-data')
 
 def bulk_read(option):
     if option == 'contact_data':
@@ -35,7 +35,7 @@ def bulk_read(option):
     for i in files:
         row = open(i, 'r').read().split('\n')
         if len(str(row))>3:
-            if option == ('contact_data' or 'links'):
+            if (option == 'contact_data') or (option == 'links'):
                 row = str(row).replace('[','').replace(']','').replace('"','').replace("'",'')
                 data.append(row)
             else:

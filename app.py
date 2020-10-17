@@ -7,23 +7,32 @@ from bs4 import BeautifulSoup
 # places_query='https://maps.googleapis.com/maps/api/place/findplacefromtext/json?key='+credentials.get_google_key()+'&input='
 
 def extract_data_from_website(url):
+    i= 0 
     while True:
         try:
+            print('Attempting extraction to:')
+            print(url)
             response=requests.get(url)
             break
         except Exception:
+            i+=1
+            if i == 2:
+                print('5th attempt skipping')
+                response = 'bad'
+                break
             continue
-    soup=BeautifulSoup(response.text,'html.parser')
-    soup=str(soup)
-    results = [extract(soup)]
-    extractor = PhoneNumberExtractor()
-    matches = extractor.extract_phone_numbers(soup)
-    phones = ', '.join(matches)
-    results.append(phones)
-    print('Exploring Website')
-    print(url)
-    print(results)
-    persistence.save(results,'contact_data')
+    if response != 'bad':
+        soup=BeautifulSoup(response.text,'html.parser')
+        soup=str(soup)
+        results = [extract(soup)]
+        extractor = PhoneNumberExtractor()
+        matches = extractor.extract_phone_numbers(soup)
+        phones = ', '.join(matches)
+        results.append(phones)
+        print('Exploring Website')
+        print(url)
+        print(results)
+        persistence.save(results,'contact_data')
 
 def explore_website(url):
     while True:
@@ -46,10 +55,10 @@ def explore_website(url):
     for elem in result_url:
         if elem  not in purged_elements:
             purged_elements.add(elem)
-            print(href)
-            extract_data_from_website(href)
+            print(elem)
+            extract_data_from_website(elem)
     persistence.save_links(purged_elements)
-    persistence.purge_links()
+    #persistence.purge_links()
 
 def get_businesses(business, locations):
     query = 'https://dev.virtualearth.net/REST/v1/LocalSearch/?query=' + \
@@ -61,9 +70,12 @@ def get_businesses(business, locations):
             while True:
                 try:
                     results = requests.get(query+'&userLocation='+str(coordinates[0])+','+str(coordinates[1])+'&key='+credentials.get_bing_key()).json()['resourceSets'][0]['resources']
+                    print(results)
                     for i in results:
                         obtained_places.append(i)
-                        explore_website(i['Website'])
+                        website = i['Website'] 
+                        if str(website) != 'None':
+                            explore_website(website)
                 except Exception as err:
                     print(err)
                     continue
