@@ -1,5 +1,8 @@
 credentials.py
-results
+results/coordinates/*.txt
+results/businesses/api/*.txt
+results/businesses/contact_data/*.txt
+results/businesses/links/*.txt
 .vscode
 __pycache__
 cities_list.csv
