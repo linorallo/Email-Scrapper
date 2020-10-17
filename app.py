@@ -1,11 +1,18 @@
 import persistence
 import requests, json
 import credentials
-import phonenumberextractor
+from phonenumberextractor import PhoneNumberExtractor
+from html_analizer import extract
+from bs4 import BeautifulSoup
 # places_query='https://maps.googleapis.com/maps/api/place/findplacefromtext/json?key='+credentials.get_google_key()+'&input='
 
-def explore_website(url):
-    response=requests.get(url)
+def extract_data_from_website(url):
+    while True:
+        try:
+            response=requests.get(url)
+            break
+        except Exception:
+            continue
     soup=BeautifulSoup(response.text,'html.parser')
     soup=str(soup)
     results = [extract(soup)]
@@ -13,8 +20,36 @@ def explore_website(url):
     matches = extractor.extract_phone_numbers(soup)
     phones = ', '.join(matches)
     results.append(phones)
+    print('Exploring Website')
+    print(url)
     print(results)
-    persistence.writeResults(url,results)
+    persistence.save(results,'contact_data')
+
+def explore_website(url):
+    while True:
+        try:
+            response=requests.get(url)
+            break
+        except Exception:
+            continue
+    extract_data_from_website(url)
+    soup=BeautifulSoup(response.text,'html.parser')
+    result_url = []
+    for link in soup.findAll(href=True):
+        try:
+            href = str(link['href'])
+            if 'contact' in str(href):
+                result_url.append(href)
+        except TypeError :
+            continue
+    purged_elements = set()
+    for elem in result_url:
+        if elem  not in purged_elements:
+            purged_elements.add(elem)
+            print(href)
+            extract_data_from_website(href)
+    persistence.save_links(purged_elements)
+    persistence.purge_links()
 
 def get_businesses(business, locations):
     query = 'https://dev.virtualearth.net/REST/v1/LocalSearch/?query=' + \
@@ -28,35 +63,56 @@ def get_businesses(business, locations):
                     results = requests.get(query+'&userLocation='+str(coordinates[0])+','+str(coordinates[1])+'&key='+credentials.get_bing_key()).json()['resourceSets'][0]['resources']
                     for i in results:
                         obtained_places.append(i)
-                except Exception:
+                        explore_website(i['Website'])
+                except Exception as err:
+                    print(err)
                     continue
                 break
-    print('---')
     return obtained_places
 
 
-def get_coordinates(city):
+def get_coordinates(cities):
     country = 'US'
     state = 'NY'
-    query = 'http://dev.virtualearth.net/REST/v1/Locations/'+country+'/'+state+'/' + \
-        str(city)+'?o=json&key='+credentials.get_bing_key()
     obtained_resources = []
-    result = requests.get(query).json()
-    #print(result['resourceSets'][0]['resources'])
-    for i in result['resourceSets'][0]['resources']:
-        obtained_resources.append(i)
-    persistence.save_coordinates(obtained_resources)
+
+    existing_cities = persistence.bulk_read('coordinates')
+    new_cities = set()
+    for city in cities:
+        for i in existing_cities:
+            print(i['name'].split(',')[0])
+            print(city)
+            print('------------')
+            if i['name'].split(',')[0] != city:
+                new_cities.add(city)
+        if len(existing_cities) == 0:
+            new_cities.add(city)
     obtained_coordinates=[]
-    offset = 0.02
-    for i in obtained_resources:
-        original_coordinates = i['point']['coordinates']
-        quadrant_1 = [original_coordinates[0] + offset, original_coordinates[1] - offset]
-        quadrant_2 = [original_coordinates[0] - offset, original_coordinates[1] + offset]
-        quadrant_3 = [original_coordinates[0] - offset, original_coordinates[1] - offset]
-        quadrant_4 = [original_coordinates[0] + offset, original_coordinates[1] + offset]
-        coordinates  = [original_coordinates,quadrant_1,quadrant_2,quadrant_3,quadrant_4]
-        all_coordinates = dict(name = i['name'], coordinates = coordinates)
-        obtained_coordinates.append(all_coordinates)
+    print('new cities')
+    print(new_cities)
+
+    for city in new_cities:
+        query = 'http://dev.virtualearth.net/REST/v1/Locations/'+country+'/'+state+'/' + \
+        str(city)+'?o=json&key='+credentials.get_bing_key()
+        while True:
+            try:
+                result = requests.get(query).json()
+                break
+            except Exception:
+                continue
+        for i in result['resourceSets'][0]['resources']:
+            obtained_resources.append(i)
+        persistence.save(obtained_resources,'coordinates')
+        offset = 0.02
+        for i in obtained_resources:
+            original_coordinates = i['point']['coordinates']
+            quadrant_1 = [original_coordinates[0] + offset, original_coordinates[1] - offset]
+            quadrant_2 = [original_coordinates[0] - offset, original_coordinates[1] + offset]
+            quadrant_3 = [original_coordinates[0] - offset, original_coordinates[1] - offset]
+            quadrant_4 = [original_coordinates[0] + offset, original_coordinates[1] + offset]
+            coordinates  = [original_coordinates,quadrant_1,quadrant_2,quadrant_3,quadrant_4]
+            all_coordinates = dict(name = i['name'], coordinates = coordinates)
+            obtained_coordinates.append(all_coordinates)
     return obtained_coordinates
 
 def get_cities():
@@ -67,6 +123,7 @@ def get_data(business):
     cities = get_cities()
     locations = get_coordinates(cities)
     businesses_data = get_businesses(business, locations)
-    persistence.save_results(businesses_data)
+    persistence.save(businesses_data, 'business')
 
 get_data('restaurants')
+#get_coordinates(['East Patchogue'])
