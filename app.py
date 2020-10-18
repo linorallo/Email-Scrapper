@@ -60,7 +60,6 @@ def explore_website(url):
         try:
             print('\n ###--- EXPLORE_WEBSITE: REQUESTING '+str(url)+' ---### \n')
             response=requests.get(url, allow_redirects=False)
-            break
         except Exception as err:
             print(err)
             response = 'bad'
