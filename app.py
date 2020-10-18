@@ -14,7 +14,7 @@ def extract_data_from_website(url, prefix):
             if '.com' in str(url):
                 print('Attempting extraction to:')
                 print(url)
-                response=requests.get(url)
+                response=requests.get(url,allow_redirects=False)
                 break
             else:
                 if len(prefix)>2:
@@ -30,7 +30,7 @@ def extract_data_from_website(url, prefix):
                             url = prefix+url[1:len(url)]
                         else:
                             url = prefix+url
-                    response = requests.get(url)
+                    response = requests.get(url, allow_redirects=False)
                     break
                 i=10
             raise Exception
@@ -57,7 +57,7 @@ def extract_data_from_website(url, prefix):
 def explore_website(url):
     while True:
         try:
-            response=requests.get(url)
+            response=requests.get(url, allow_redirects=False)
             break
         except Exception as err:
             print(err)
