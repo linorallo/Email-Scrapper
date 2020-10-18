@@ -75,7 +75,7 @@ def save(data, option):
     if option == 'links':
         directory = 'results/businesses/links/'
     if option == 'business':
-        directory = 'results/business/api/'
+        directory = 'results/businesses/api/'
     if option == 'coordinates':
         directory = 'results/coordinates/'
     f = open(directory + str(datetime.now().timestamp()) + '.txt', "w+")

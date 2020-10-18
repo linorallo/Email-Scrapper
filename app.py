@@ -87,7 +87,6 @@ def explore_website(url):
 def get_businesses(business, locations):
     query = 'https://dev.virtualearth.net/REST/v1/LocalSearch/?query=' + \
         business+'&maxResults=25'
-    obtained_places = []
     count_location = 0
     websites = []
     for location in locations:
@@ -97,7 +96,6 @@ def get_businesses(business, locations):
         for coordinates in location['coordinates']:
             count_coordinates += 1
             print('coordinates '+str(count_coordinates)+'/'+str(len(location['coordinates'])))
-            print('\n ###*** OBTAINING '+str(location)+'  '+str(coordinates)+' ***### \n')
             while True:
                 try:
                     
@@ -107,16 +105,11 @@ def get_businesses(business, locations):
                     for i in results:
                         count +=1
                         print('results per location: '+str(count)+'/'+str(len(results)))
-                        obtained_places.append(i)
-                        website = i['Website'] 
-                        if str(website) != 'None':
-                            print('\n ###--- EXPLORING WEBSITE: '+str(website)+' ---### \n')
-                            websites.append(website)
+                        persistence.save(i,'business')
                 except Exception as err:
                     print(err)
                     break
                 break
-    return (obtained_places, websites)
 
 
 def get_coordinates(cities):
@@ -172,9 +165,8 @@ def get_data(business):
     print('\n ### CITIES OBTAINED### \n')
     locations = get_coordinates(cities)
     print('\n ### COORDINATES OBTAINED### \n')
-    businesses_data = get_businesses(business, locations)
+    get_businesses(business, locations)
     print('\n ### BUSINESS DATA OBTAINED### \n')
-    persistence.save(businesses_data, 'business')
 
 get_data('restaurants')
 #get_coordinates(['East Patchogue'])
