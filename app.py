@@ -61,25 +61,27 @@ def explore_website(url):
             break
         except Exception as err:
             print(err)
-            continue
-    extract_data_from_website(url,'')
-    soup=BeautifulSoup(response.text,'html.parser')
-    result_url = []
-    for link in soup.findAll(href=True):
-        try:
-            href = str(link['href'])
-            if 'contact' in str(href):
-                result_url.append(href)
-        except TypeError :
-            continue
-    purged_elements = set()
-    for elem in result_url:
-        if elem  not in purged_elements:
-                purged_elements.add(elem)
-                print(elem)
-                extract_data_from_website(elem,url)
-    persistence.save_links(purged_elements)
-    #persistence.purge_links()
+            response = 'bad'
+            break
+        if response != 'bad':
+            extract_data_from_website(url,'')
+            soup=BeautifulSoup(response.text,'html.parser')
+            result_url = []
+            for link in soup.findAll(href=True):
+                try:
+                    href = str(link['href'])
+                    if 'contact' in str(href):
+                        result_url.append(href)
+                except TypeError :
+                    continue
+            purged_elements = set()
+            for elem in result_url:
+                if elem  not in purged_elements:
+                        purged_elements.add(elem)
+                        print(elem)
+                        extract_data_from_website(elem,url)
+            persistence.save_links(purged_elements)
+            #persistence.purge_links()
 
 def get_businesses(business, locations):
     query = 'https://dev.virtualearth.net/REST/v1/LocalSearch/?query=' + \
