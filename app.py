@@ -89,6 +89,7 @@ def get_businesses(business, locations):
         business+'&maxResults=25'
     obtained_places = []
     count_location = 0
+    websites = []
     for location in locations:
         count_location += 1
         print('loactions: ->'+str(location)+str(count_location)+'/'+str(len(locations)))
@@ -110,12 +111,12 @@ def get_businesses(business, locations):
                         website = i['Website'] 
                         if str(website) != 'None':
                             print('\n ###--- EXPLORING WEBSITE: '+str(website)+' ---### \n')
-                            explore_website(website)
+                            websites.append(website)
                 except Exception as err:
                     print(err)
                     break
                 break
-    return obtained_places
+    return (obtained_places, websites)
 
 
 def get_coordinates(cities):
