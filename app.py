@@ -4,33 +4,43 @@ import credentials
 from phonenumberextractor import PhoneNumberExtractor
 from html_analizer import extract
 from bs4 import BeautifulSoup
-from interruptingcow import timeout
 # places_query='https://maps.googleapis.com/maps/api/place/findplacefromtext/json?key='+credentials.get_google_key()+'&input='
 
-def extract_data_from_website(url):
+def extract_data_from_website(url, prefix):
     i= 0 
     while True:
         try:
             if '.com' in str(url):
                 print('Attempting extraction to:')
                 print(url)
-                try:
-                    response=requests.get(url)
-                    break
-                except Exception as err:
-                    print(err)
-                    err
+                response=requests.get(url)
+                break
             else:
+                if len(prefix)>2:
+                    print(prefix[len(prefix)-1])
+                    if url[0] != '/':
+                        
+                        if prefix[len(prefix)-1] != '/':
+                            url = prefix+'/'+url
+                        else:
+                            url = prefix + url
+                    else:
+                        if prefix[len(prefix)-1] == '/':
+                            url = prefix+url[1:len(url)]
+                        else:
+                            url = prefix+url
+                    response = requests.get(url)
+                    break
                 i=10
-                Exception
-        except Exception:
+            raise Exception
+        except Exception as err:
+            print(err)
             i+=1
             print(i)
             if i >= 5:
                 print('5th attempt skipping')
                 response = 'bad'
                 break
-            continue
     if response != 'bad':
         soup=BeautifulSoup(response.text,'html.parser')
         soup=str(soup)
@@ -39,8 +49,6 @@ def extract_data_from_website(url):
         matches = extractor.extract_phone_numbers(soup)
         phones = ', '.join(matches)
         results.append(phones)
-        print('Exploring Website')
-        print(url)
         print(results)
         persistence.save(results,'contact_data')
 
@@ -56,7 +64,7 @@ def explore_website(url):
         except Exception as err:
             print(err)
             continue
-    extract_data_from_website(url)
+    extract_data_from_website(url,'')
     soup=BeautifulSoup(response.text,'html.parser')
     result_url = []
     for link in soup.findAll(href=True):
@@ -69,9 +77,9 @@ def explore_website(url):
     purged_elements = set()
     for elem in result_url:
         if elem  not in purged_elements:
-            purged_elements.add(elem)
-            print(elem)
-            extract_data_from_website(elem)
+                purged_elements.add(elem)
+                print(elem)
+                extract_data_from_website(elem,url)
     persistence.save_links(purged_elements)
     #persistence.purge_links()
 
