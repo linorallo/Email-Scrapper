@@ -4,6 +4,7 @@ import credentials
 from phonenumberextractor import PhoneNumberExtractor
 from html_analizer import extract
 from bs4 import BeautifulSoup
+import time
 # places_query='https://maps.googleapis.com/maps/api/place/findplacefromtext/json?key='+credentials.get_google_key()+'&input='
 
 def extract_data_from_website(url, prefix):
@@ -37,6 +38,7 @@ def extract_data_from_website(url, prefix):
             print(err)
             i+=1
             print(i)
+            time.sleep(5)
             if i >= 5:
                 print('5th attempt skipping')
                 response = 'bad'
@@ -55,12 +57,8 @@ def extract_data_from_website(url, prefix):
 def explore_website(url):
     while True:
         try:
-            try:
-                response=requests.get(url)
-                break
-            except Exception as err:
-                print(err)
-                err
+            response=requests.get(url)
+            break
         except Exception as err:
             print(err)
             continue
