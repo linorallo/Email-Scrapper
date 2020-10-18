@@ -101,7 +101,7 @@ def get_businesses(business, locations):
                             explore_website(website)
                 except Exception as err:
                     print(err)
-                    continue
+                    break
                 break
     return obtained_places
 
