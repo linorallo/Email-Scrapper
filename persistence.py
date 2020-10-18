@@ -83,7 +83,7 @@ def save(data, option):
     for i in data:
         count+=1
         if (len(data)-count)==0:
+            f.write(str(i))
             break
         f.write(str(i)+'\n')
-    f.write(str(data[len(data)-1]))
     f.close()

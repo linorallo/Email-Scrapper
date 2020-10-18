@@ -98,18 +98,17 @@ def get_businesses(business, locations):
             print('coordinates '+str(count_coordinates)+'/'+str(len(location['coordinates'])))
             while True:
                 try:
-                    
                     results = requests.get(query+'&userLocation='+str(coordinates[0])+','+str(coordinates[1])+'&key='+credentials.get_bing_key()).json()['resourceSets'][0]['resources']
-                    print(results)
-                    count = 0
-                    for i in results:
-                        count +=1
-                        print('results per location: '+str(count)+'/'+str(len(results)))
-                        persistence.save(i,'business')
                 except Exception as err:
                     print(err)
                     break
-                break
+            print(results)
+            count = 0
+            for i in results:
+                count +=1
+                print('results per location: '+str(count)+'/'+str(len(results)))
+                persistence.save(i,'business')
+
 
 
 def get_coordinates(cities):
