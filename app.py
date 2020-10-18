@@ -11,7 +11,7 @@ def extract_data_from_website(url, prefix):
     i= 0 
     while True:
         try:
-            print('\n ###--- Extract Data Website: Requesting '+str(url)+' '+str(prefix+' ---### \n')
+            print('\n ###--- Extract Data Website: Requesting '+str(url)+' '+str(prefix)+' ---### \n')
             if '.com' in str(url):
                 print('Attempting extraction to:')
                 print(url)
