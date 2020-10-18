@@ -88,15 +88,24 @@ def get_businesses(business, locations):
     query = 'https://dev.virtualearth.net/REST/v1/LocalSearch/?query=' + \
         business+'&maxResults=25'
     obtained_places = []
+    count_location = 0
     for location in locations:
+        count_location += 1
+        print('loactions: ->'+str(location)+str(count_location)+'/'+str(len(locations)))
+        count_coordinates = 0
         for coordinates in location['coordinates']:
+            count_coordinates += 1
+            print('coordinates '+str(count_coordinates)+'/'+str(len(location['coordinates'])))
             print('\n ###*** OBTAINING '+str(location)+'  '+str(coordinates)+' ***### \n')
             while True:
                 try:
                     
                     results = requests.get(query+'&userLocation='+str(coordinates[0])+','+str(coordinates[1])+'&key='+credentials.get_bing_key()).json()['resourceSets'][0]['resources']
                     print(results)
+                    count = 0
                     for i in results:
+                        count +=1
+                        print('results per location: '+str(count)+'/'+str(len(results)))
                         obtained_places.append(i)
                         website = i['Website'] 
                         if str(website) != 'None':
