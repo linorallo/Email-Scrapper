@@ -11,6 +11,7 @@ def extract_data_from_website(url, prefix):
     i= 0 
     while True:
         try:
+            print('\n ###--- Extract Data Website: Requesting '+str(url)+' '+str(prefix+' ---### \n')
             if '.com' in str(url):
                 print('Attempting extraction to:')
                 print(url)
@@ -57,6 +58,7 @@ def extract_data_from_website(url, prefix):
 def explore_website(url):
     while True:
         try:
+            print('\n ###--- EXPLORE_WEBSITE: REQUESTING '+str(url)+' ---### \n')
             response=requests.get(url, allow_redirects=False)
             break
         except Exception as err:
@@ -89,15 +91,17 @@ def get_businesses(business, locations):
     obtained_places = []
     for location in locations:
         for coordinates in location['coordinates']:
-            print(coordinates)
+            print('\n ###*** OBTAINING '+str(location)+'  '+str(coordinates)+' ***### \n')
             while True:
                 try:
+                    
                     results = requests.get(query+'&userLocation='+str(coordinates[0])+','+str(coordinates[1])+'&key='+credentials.get_bing_key()).json()['resourceSets'][0]['resources']
                     print(results)
                     for i in results:
                         obtained_places.append(i)
                         website = i['Website'] 
                         if str(website) != 'None':
+                            print('\n ###--- EXPLORING WEBSITE: '+str(website)+' ---### \n')
                             explore_website(website)
                 except Exception as err:
                     print(err)
@@ -156,8 +160,11 @@ def get_cities():
 
 def get_data(business):
     cities = get_cities()
+    print('\n ### CITIES OBTAINED### \n')
     locations = get_coordinates(cities)
+    print('\n ### COORDINATES OBTAINED### \n')
     businesses_data = get_businesses(business, locations)
+    print('\n ### BUSINESS DATA OBTAINED### \n')
     persistence.save(businesses_data, 'business')
 
 get_data('restaurants')
