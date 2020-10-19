@@ -30,19 +30,22 @@ def bulk_read(option):
         directory = 'results/businesses/links/*.txt'
     if option == 'coordinates':
         directory = 'results/coordinates/*.txt'
+    if option == 'api':
+        directory = 'results/businesses/api/websites.csv'
     files = glob.glob(directory)
     data = []
     for i in files:
         row = open(i, 'r').read().split('\n')
         if len(str(row))>3:
-            if (option == 'contact_data') or (option == 'links'):
-                row = str(row).replace('[','').replace(']','').replace('"','').replace("'",'')
+            if (option == 'api') or (option == 'contact_data') or (option == 'links'):
                 data.append(row)
             else:
                 for j in row:
+                    k = j
                     j  = j.rstrip()
-                    j = str(j).replace('\'','\"')
-                    j = json.loads(j)
+                    k = str(j).replace('\'','\"')
+                    print(k)
+                    j = json.loads(k)
                     data.append(j)
     return data
 

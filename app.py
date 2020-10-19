@@ -84,6 +84,30 @@ def explore_website(url):
             persistence.save_links(purged_elements)
             #persistence.purge_links()
 
+def get_businesses_websites():
+    count_location = 0
+    websites = []
+    for location in locations:
+        count_location += 1
+        print('loactions: ->'+str(location)+str(count_location)+'/'+str(len(locations)))
+        count_coordinates = 0
+        for coordinates in location['coordinates']:
+            count_coordinates += 1
+            print('coordinates '+str(count_coordinates)+'/'+str(len(location['coordinates'])))
+            while True:
+                try:
+                    results = requests.get(query+'&userLocation='+str(coordinates[0])+','+str(coordinates[1])+'&key='+credentials.get_bing_key()).json()['resourceSets'][0]['resources']
+                except Exception as err:
+                    print(err)
+                    break
+            print(results)
+            count = 0
+            for i in results:
+                count +=1
+                print('results per location: '+str(count)+'/'+str(len(results)))
+                persistence.save(i,'business')
+
+
 def get_businesses(business, locations):
     query = 'https://dev.virtualearth.net/REST/v1/LocalSearch/?query=' + \
         business+'&maxResults=25'
@@ -167,5 +191,8 @@ def get_data(business):
     get_businesses(business, locations)
     print('\n ### BUSINESS DATA OBTAINED### \n')
 
-get_data('restaurants')
+def get_contact_data():
+    explore_website(persistence.bulk_read('api')[0])
+
+get_contact_data()
 #get_coordinates(['East Patchogue'])
