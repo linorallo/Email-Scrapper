@@ -60,52 +60,37 @@ def explore_website(url):
         try:
             print('\n ###--- EXPLORE_WEBSITE: REQUESTING '+str(url)+' ---### \n')
             response=requests.get(url, allow_redirects=False)
+            break
         except Exception as err:
             print(err)
             response = 'bad'
             break
-        if response != 'bad':
-            extract_data_from_website(url,'')
-            soup=BeautifulSoup(response.text,'html.parser')
-            result_url = []
-            for link in soup.findAll(href=True):
-                try:
-                    href = str(link['href'])
-                    if 'contact' in str(href):
-                        result_url.append(href)
-                except TypeError :
-                    continue
-            purged_elements = set()
-            for elem in result_url:
-                if elem  not in purged_elements:
-                        purged_elements.add(elem)
-                        print(elem)
-                        extract_data_from_website(elem,url)
-            persistence.save_links(purged_elements)
-            #persistence.purge_links()
+    if response != 'bad':
+        extract_data_from_website(url,'')
+        soup=BeautifulSoup(response.text,'html.parser')
+        result_url = []
+        for link in soup.findAll(href=True):
+            try:
+                href = str(link['href'])
+                if 'contact' in str(href):
+                    result_url.append(href)
+            except TypeError :
+                continue
+        purged_elements = set()
+        for elem in result_url:
+            if elem  not in purged_elements:
+                    purged_elements.add(elem)
+                    print(elem)
+                    extract_data_from_website(elem,url)
+        persistence.save_links(purged_elements)
+        #persistence.purge_links()
 
-def get_businesses_websites():
-    count_location = 0
-    websites = []
-    for location in locations:
-        count_location += 1
-        print('loactions: ->'+str(location)+str(count_location)+'/'+str(len(locations)))
-        count_coordinates = 0
-        for coordinates in location['coordinates']:
-            count_coordinates += 1
-            print('coordinates '+str(count_coordinates)+'/'+str(len(location['coordinates'])))
-            while True:
-                try:
-                    results = requests.get(query+'&userLocation='+str(coordinates[0])+','+str(coordinates[1])+'&key='+credentials.get_bing_key()).json()['resourceSets'][0]['resources']
-                except Exception as err:
-                    print(err)
-                    break
-            print(results)
-            count = 0
-            for i in results:
-                count +=1
-                print('results per location: '+str(count)+'/'+str(len(results)))
-                persistence.save(i,'business')
+def get_businesses_websites(links):
+    count = 0
+    for url in links:
+        count += 1
+        print('-----Link: '+str(count)+'/'+str(len(links)))
+        explore_website(url)
 
 
 def get_businesses(business, locations):
@@ -192,7 +177,7 @@ def get_data(business):
     print('\n ### BUSINESS DATA OBTAINED### \n')
 
 def get_contact_data():
-    explore_website(persistence.bulk_read('api')[0])
+    get_businesses_websites(persistence.bulk_read('api')[0])
 
 get_contact_data()
 #get_coordinates(['East Patchogue'])
